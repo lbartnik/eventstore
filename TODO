@@ -1,0 +1,3 @@
+* serialize/deserialize events with their real classes
+* event versioning?
+* use reflection to run state-update methods based on the event class
