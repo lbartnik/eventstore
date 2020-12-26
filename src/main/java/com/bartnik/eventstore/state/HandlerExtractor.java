@@ -37,6 +37,7 @@ public class HandlerExtractor {
   }
 
   public boolean isEventHandler(final Method method) {
+    // TODO check annotation, e.g. @EventHandler
     return isUnary(method) && implementsInterface(firstParameterType(method), base);
   }
 
