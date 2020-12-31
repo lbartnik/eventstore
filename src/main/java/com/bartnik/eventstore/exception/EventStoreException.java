@@ -1,7 +1,5 @@
 package com.bartnik.eventstore.exception;
 
-import java.lang.reflect.Executable;
-
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor

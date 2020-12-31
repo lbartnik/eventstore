@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import com.bartnik.eventstore.Event;
+import com.bartnik.eventstore.SequencedEvent;
 import com.bartnik.eventstore.State;
 
 import lombok.NonNull;
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class StateHandler {
 
   private final @NonNull State state;
-  private final @NonNull Map<Class<? extends Event>, Method> handlers;
+  private final @NonNull Map<Class<? extends SequencedEvent>, Method> handlers;
 
   public static StateHandler from(final State state) {
     return from(state, new HandlerExtractor());
@@ -24,7 +24,7 @@ public class StateHandler {
     return new StateHandler(state, extractor.extract(state));
   }
 
-  public void apply(@NonNull final Event event) throws StateHandlerException {
+  public void apply(@NonNull final SequencedEvent event) throws StateHandlerException {
     try {
       handlers.get(event.getClass()).invoke(this.state, event);
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

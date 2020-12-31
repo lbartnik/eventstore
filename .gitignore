@@ -32,3 +32,6 @@ target
 .factorypath
 .project
 workspace.code-workspace
+
+# IntelliJ
+.idea

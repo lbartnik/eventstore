@@ -1,6 +1,6 @@
-package com.bartnik.sample.exception;
+package com.bartnik.sample.coffee.exception;
 
-public class InvalidOperationException extends RuntimeException {
+public class InvalidOperationException extends CoffeeOrderException {
 
   /**
    *
