@@ -46,7 +46,13 @@ public class LongRunningCoffee extends MakingCoffee {
   }
 
   private void grind(final UUID orderId, final double weight) {
-    final CoffeeOrder coffeeOrder = repository.load(orderId);
+    final CoffeeOrder coffeeOrder;
+    try {
+      coffeeOrder = repository.load(orderId);
+    } catch(CoffeeOrderRepositoryException e) {
+      log.error("Could not load the aggregate, retry is unlikely to help", e);
+      return;
+    }
 
     try {
       coffeeOrder.grindCoffee(weight);
@@ -59,7 +65,13 @@ public class LongRunningCoffee extends MakingCoffee {
   }
 
   private void brew(final UUID orderId, final double volume) {
-    final CoffeeOrder coffeeOrder = repository.load(orderId);
+    final CoffeeOrder coffeeOrder;
+    try {
+      coffeeOrder = repository.load(orderId);
+    } catch(CoffeeOrderRepositoryException e) {
+      log.error("Could not load the aggregate, retry is unlikely to help", e);
+      return;
+    }
 
     try {
       coffeeOrder.brew(volume);

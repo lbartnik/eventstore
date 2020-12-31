@@ -6,13 +6,15 @@ import com.bartnik.eventstore.EventSourcedAggregate;
 import com.bartnik.eventstore.SequencedEvent;
 import com.bartnik.eventstore.SequencedEvents;
 import com.bartnik.eventstore.SequencedEventsCollection;
-import com.bartnik.eventstore.exception.EventStoreException;
+import com.bartnik.eventstore.exception.EventStoreError;
 import com.bartnik.sample.coffee.events.BeansGround;
 import com.bartnik.sample.coffee.events.CoffeeBrewed;
 import com.bartnik.sample.coffee.events.CoffeeOrdered;
 import com.bartnik.sample.coffee.exception.CoffeeOrderException;
 import com.bartnik.sample.coffee.exception.InvalidOperationException;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ import java.util.UUID;
  * database, e.g. a standard SQL storage.
  */
 @AggregateRoot
+@RequiredArgsConstructor
 public class CoffeeOrder implements EventSourcedAggregate {
 
     private enum OrderState {
@@ -70,13 +73,8 @@ public class CoffeeOrder implements EventSourcedAggregate {
         }
     }
 
-    private final CoffeeOrderState state;
-    private final SequencedEvents<CoffeeOrderState> events;
-
-    public CoffeeOrder(final UUID orderId) {
-        this.state = new CoffeeOrderState(orderId);
-        this.events = new SequencedEvents<>(this.state);
-    }
+    @NonNull private final CoffeeOrderState state;
+    @NonNull private final SequencedEvents<CoffeeOrderState> events;
 
     @Override
     public UUID getId() {
@@ -127,7 +125,7 @@ public class CoffeeOrder implements EventSourcedAggregate {
         try {
             events.pushEvent(eventProducer);
         }
-        catch (EventStoreException e) {
+        catch (EventStoreError e) {
             throw new CoffeeOrderException("Could not push event", e);
         }
     }

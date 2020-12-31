@@ -1,11 +1,10 @@
 package com.bartnik.eventstore;
 
-import com.bartnik.eventstore.exception.EventStoreException;
+import com.bartnik.eventstore.exception.EventStoreError;
 import com.bartnik.eventstore.state.StateHandler;
 import lombok.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -59,15 +58,33 @@ public class SequencedEvents<T extends State> implements SequencedEventsCollecti
         return eventsInOrder.toArray(new SequencedEvent[0]);
     }
 
-    public void pushEvent(final SequencedEventProducer eventProducer) throws EventStoreException {
+    public static <T extends State> SequencedEvents<T> withReplay(@NonNull final T state, @NonNull final SequencedEvent[] events) throws EventStoreError {
+        final SequencedEvents<T> se = new SequencedEvents<>(state);
+
+        for(final SequencedEvent event : events) {
+            try {
+                se.applyAndAdd(event);
+            } catch (EventStoreError e) {
+                throw new EventStoreError(String.format("Could not replay event number %d", event.getSequenceNumber()), e);
+            }
+        }
+
+        return se;
+    }
+
+    public void pushEvent(final SequencedEventProducer eventProducer) throws EventStoreError {
         final long lastSequenceNumber = isEmpty() ? -1 : last().getSequenceNumber();
         final SequencedEvent event = eventProducer.apply(lastSequenceNumber + 1);
 
         if (!isEmpty() && event.getSource() != first().getSource()) {
-            throw new EventStoreException(String.format("New event has source (%s) while existing events have (%s)",
+            throw new EventStoreError(String.format("New event has source (%s) while existing events have (%s)",
                     event.getSource().toString(), first().getSource().toString()));
         }
 
+        applyAndAdd(event);
+    }
+
+    private void applyAndAdd(final SequencedEvent event) throws EventStoreError {
         stateHandler.apply(event);
         eventsInOrder.add(event);
     }

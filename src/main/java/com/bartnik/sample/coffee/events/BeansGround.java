@@ -1,18 +1,21 @@
 package com.bartnik.sample.coffee.events;
 
 import com.bartnik.eventstore.AbstractSequencedEvent;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.Setter;
 
 import java.util.UUID;
 
-@Value
+@Getter
+@Setter
+@NoArgsConstructor
 public class BeansGround extends AbstractSequencedEvent {
-  final double weight;
+  double weight;
 
   public BeansGround(@NonNull final UUID source, final long seq, final double weight) {
     super(source, seq);
-
     this.weight = weight;
   }
 }

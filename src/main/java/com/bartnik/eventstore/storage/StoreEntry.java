@@ -1,11 +1,13 @@
-package com.bartnik.eventstore.backend;
+package com.bartnik.eventstore.storage;
 
 import com.bartnik.eventstore.SequencedEvent;
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.util.UUID;
 
-@Value
+@Data
+@AllArgsConstructor
 public class StoreEntry {
     UUID id;
     long version;

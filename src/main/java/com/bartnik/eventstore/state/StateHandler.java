@@ -7,6 +7,7 @@ import java.util.Map;
 import com.bartnik.eventstore.SequencedEvent;
 import com.bartnik.eventstore.State;
 
+import com.bartnik.eventstore.exception.StateHandlerError;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -24,11 +25,11 @@ public class StateHandler {
     return new StateHandler(state, extractor.extract(state));
   }
 
-  public void apply(@NonNull final SequencedEvent event) throws StateHandlerException {
+  public void apply(@NonNull final SequencedEvent event) throws StateHandlerError {
     try {
       handlers.get(event.getClass()).invoke(this.state, event);
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-      throw new StateHandlerException("Could not apply event to state", e);
+      throw new StateHandlerError("Could not apply event to state", e);
     }
   }
   
