@@ -35,3 +35,6 @@ workspace.code-workspace
 
 # IntelliJ
 .idea
+
+# data samples
+*.json

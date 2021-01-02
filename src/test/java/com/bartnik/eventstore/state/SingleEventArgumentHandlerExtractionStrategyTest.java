@@ -1,8 +1,8 @@
 package com.bartnik.eventstore.state;
 
 import com.bartnik.eventstore.AbstractSequencedEvent;
-import com.bartnik.eventstore.AbstractState;
 import com.bartnik.eventstore.SequencedEvent;
+import com.bartnik.eventstore.state.handlers.SingleEventArgumentHandlerExtractionStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HandlerExtractorTest {
+public class SingleEventArgumentHandlerExtractionStrategyTest {
   
   public static interface TestInterface {}
 
@@ -21,9 +21,9 @@ public class HandlerExtractorTest {
     }
   }
 
-  public static class TestState extends AbstractState {
+  public static class TestAggregateStateAccumulator extends AbstractAggregateStateAccumulator {
 
-    public TestState() {
+    public TestAggregateStateAccumulator() {
       super(UUID.randomUUID());
     }
 
@@ -32,8 +32,8 @@ public class HandlerExtractorTest {
     public void otherMethod(int a, long b) {}
   }
 
-  private final TestState state = new TestState();
-  private final HandlerExtractor extractor = new HandlerExtractor();
+  private final TestAggregateStateAccumulator state = new TestAggregateStateAccumulator();
+  private final SingleEventArgumentHandlerExtractionStrategy extractor = new SingleEventArgumentHandlerExtractionStrategy();
 
   @Test
   public void identifiesImplementedInterface() {

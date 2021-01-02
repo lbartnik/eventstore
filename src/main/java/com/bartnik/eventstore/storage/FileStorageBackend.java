@@ -1,8 +1,10 @@
 package com.bartnik.eventstore.storage;
 
-import com.bartnik.eventstore.SequencedEvent;
-import com.bartnik.eventstore.SequencedEventsCollection;
+import com.bartnik.eventstore.EventArrayList;
+import com.bartnik.eventstore.EventCollection;
+import com.bartnik.eventstore.EventSourcedAggregate;
 import com.bartnik.eventstore.exception.EventStoreError;
+import com.bartnik.eventstore.exception.OptimisticLockingError;
 import lombok.NonNull;
 
 import java.io.BufferedReader;
@@ -10,6 +12,9 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileStorageBackend extends AbstractStorageBackend {
@@ -19,26 +24,43 @@ public class FileStorageBackend extends AbstractStorageBackend {
     }
 
     @Override
-    public void save(@NonNull final SequencedEventsCollection sequencedEvents) throws EventStoreError {
-        final String id = sequencedEvents.first().getSource().toString();
+    public void save(@NonNull final EventSourcedAggregate aggregate) throws EventStoreError {
+        final Path path = toPath(aggregate.getId());
+        
+        if (path.toFile().exists()) {
+            final StoreEntry se = readEntry(path);
+            final Optional<Long> reference = aggregate.getEventManager().getReferenceVersion();
 
-        // TODO check if the file exists; if so, perform the version validation
+            if (!reference.isPresent() || reference.get() != se.version) {
+                throw new OptimisticLockingError();
+            }
+        }
 
-        try(final BufferedWriter writer = new BufferedWriter(new FileWriter(id + ".json", true))) {
-            final StoreEntry entry = new StoreEntry(sequencedEvents.first().getSource(), sequencedEvents.first().getSequenceNumber(), sequencedEvents.toArray());
-            serializationStrategy.serialize(writer, entry);
+        try(final BufferedWriter writer = new BufferedWriter(new FileWriter(path.toFile(), false))) {
+            serializationStrategy.serialize(writer, toEntry(aggregate));
         } catch (IOException e) {
             throw new EventStoreError("Could not write to file", e);
         }
     }
 
     @Override
-    public SequencedEvent[] load(@NonNull final UUID id) throws EventStoreError {
-        try(final BufferedReader reader = new BufferedReader(new FileReader(id.toString() + ".json"))) {
-            final StoreEntry se = serializationStrategy.deserialize(reader, StoreEntry.class);
-            return se.getEvents();
+    public EventCollection load(@NonNull final UUID id) throws EventStoreError {
+        return EventArrayList.from(readEntry(toPath(id)).getEvents());
+    }
+
+    private StoreEntry readEntry(final Path path) throws EventStoreError {
+        try(final BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
+            return serializationStrategy.deserialize(reader, StoreEntry.class);
         } catch (IOException e) {
             throw new EventStoreError("Could not write to file", e);
         }
+    }
+
+    private static Path toPath(final UUID entryId) {
+        return Paths.get(entryId.toString() + ".json");
+    }
+
+    private static StoreEntry toEntry(final EventSourcedAggregate aggregate) {
+        return new StoreEntry(aggregate.getId(), aggregate.getVersion(), aggregate.getEventManager().getAllEvents().toArray());
     }
 }

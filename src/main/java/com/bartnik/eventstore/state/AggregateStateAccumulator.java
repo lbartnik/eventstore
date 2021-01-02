@@ -1,11 +1,11 @@
-package com.bartnik.eventstore;
+package com.bartnik.eventstore.state;
 
 import java.util.UUID;
 
 /**
- * Implemented by classes representing the state of an aggregate.
+ * Implemented by classes representing the flattened (projected) state of an aggregate.
  */
-public interface State {
+public interface AggregateStateAccumulator {
 
     /**
      * The ID of the parent aggregate.

@@ -1,12 +1,12 @@
 package com.bartnik.sample.coffee.domain;
 
 import com.bartnik.ddd.AggregateRoot;
-import com.bartnik.eventstore.AbstractState;
 import com.bartnik.eventstore.EventSourcedAggregate;
 import com.bartnik.eventstore.SequencedEvent;
-import com.bartnik.eventstore.SequencedEvents;
-import com.bartnik.eventstore.SequencedEventsCollection;
 import com.bartnik.eventstore.exception.EventStoreError;
+import com.bartnik.eventstore.state.AbstractAggregateStateAccumulator;
+import com.bartnik.eventstore.state.AggregateEventManager;
+import com.bartnik.eventstore.state.RoutingAggregateEventManager;
 import com.bartnik.sample.coffee.events.BeansGround;
 import com.bartnik.sample.coffee.events.CoffeeBrewed;
 import com.bartnik.sample.coffee.events.CoffeeOrdered;
@@ -39,14 +39,14 @@ public class CoffeeOrder implements EventSourcedAggregate {
 
     // TODO should it perform any consistency checks?
     @Getter
-    public static class CoffeeOrderState extends AbstractState {
+    public static class StateAccumulator extends AbstractAggregateStateAccumulator {
 
         private OrderState state = OrderState.CREATED;
         private String coffeeBrand;
         private double weight;
         private double volume;
 
-        public CoffeeOrderState(final UUID id) {
+        public StateAccumulator(final UUID id) {
             super(id);
         }
 
@@ -73,45 +73,53 @@ public class CoffeeOrder implements EventSourcedAggregate {
         }
     }
 
-    @NonNull private final CoffeeOrderState state;
-    @NonNull private final SequencedEvents<CoffeeOrderState> events;
+    @NonNull private final StateAccumulator accumulator;
+    @NonNull private final AggregateEventManager stateManager;
 
     @Override
     public UUID getId() {
-        return state.getId();
+        return accumulator.getId();
     }
 
     @Override
-    public SequencedEventsCollection getSequencedEvents() {
-        return events;
+    public long getVersion() {
+        return accumulator.getVersion();
     }
 
+    @Override
+    public AggregateEventManager getEventManager() {
+        return stateManager;
+    }
+
+    // TODO add command object
     public void order(final String coffeeBrand) throws CoffeeOrderException {
-        if (!state.isInState(OrderState.CREATED)) {
+        if (!accumulator.isInState(OrderState.CREATED)) {
             throw new InvalidOperationException();
         }
 
         System.out.println(String.format("Coffee %s has been ordered", coffeeBrand));
-        pushEvent((seq) -> new CoffeeOrdered(state.getId(), seq, coffeeBrand));
+        pushEvent((seq) -> new CoffeeOrdered(accumulator.getId(), seq, coffeeBrand));
     }
 
+    // TODO add command object
     public void grindCoffee(final double weight) throws CoffeeOrderException {
-        if (!state.isInState(OrderState.ORDERED)) {
+        if (!accumulator.isInState(OrderState.ORDERED)) {
             throw new InvalidOperationException();
         }
 
-        System.out.println(String.format("Grinding %f grams of %s beans", weight, state.getCoffeeBrand()));
-        pushEvent((seq) -> new BeansGround(state.getId(), seq, weight));
+        System.out.println(String.format("Grinding %f grams of %s beans", weight, accumulator.getCoffeeBrand()));
+        pushEvent((seq) -> new BeansGround(accumulator.getId(), seq, weight));
     }
 
+    // TODO add command object
     public void brew(final double volume) throws CoffeeOrderException {
-        if (!state.isInState(OrderState.GROUND)) {
+        if (!accumulator.isInState(OrderState.GROUND)) {
             throw new InvalidOperationException();
         }
 
         System.out.println(String.format("Brewing %f milliliters of coffee from %f grams of %s coffee",
-            volume, state.getWeight(), state.getCoffeeBrand()));
-        pushEvent((seq) -> new CoffeeBrewed(state.getId(), seq, volume));
+            volume, accumulator.getWeight(), accumulator.getCoffeeBrand()));
+        pushEvent((seq) -> new CoffeeBrewed(accumulator.getId(), seq, volume));
     }
 
 
@@ -121,9 +129,9 @@ public class CoffeeOrder implements EventSourcedAggregate {
      * @param eventProducer
      * @throws CoffeeOrderException
      */
-    private <E extends SequencedEvent> void pushEvent(final SequencedEvents.SequencedEventProducer<E> eventProducer) throws CoffeeOrderException {
+    private <E extends SequencedEvent> void pushEvent(final RoutingAggregateEventManager.SequencedEventProducer<E> eventProducer) throws CoffeeOrderException {
         try {
-            events.pushEvent(eventProducer);
+            stateManager.addEvent(eventProducer);
         }
         catch (EventStoreError e) {
             throw new CoffeeOrderException("Could not push event", e);

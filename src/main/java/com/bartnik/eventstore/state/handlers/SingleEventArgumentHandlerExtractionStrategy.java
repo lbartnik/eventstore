@@ -1,28 +1,27 @@
-package com.bartnik.eventstore.state;
+package com.bartnik.eventstore.state.handlers;
 
 import com.bartnik.eventstore.SequencedEvent;
+import com.bartnik.eventstore.state.AggregateStateAccumulator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.bartnik.eventstore.State;
-
 @RequiredArgsConstructor
-public class HandlerExtractor {
+public class SingleEventArgumentHandlerExtractionStrategy implements HandlerExtractionStrategy {
 
   final Class<?> base;
 
-  public HandlerExtractor() {
+  public SingleEventArgumentHandlerExtractionStrategy() {
     this(SequencedEvent.class);
   }
 
-  public Map<Class<? extends SequencedEvent>, Method> extract(@NonNull final State state) {
+  @Override
+  public Map<Class<? extends SequencedEvent>, Method> extract(@NonNull final AggregateStateAccumulator state) {
     return Arrays.asList(state.getClass().getMethods())
       .stream()
       .filter(this::isEventHandler)
