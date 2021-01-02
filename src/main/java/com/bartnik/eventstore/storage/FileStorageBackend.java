@@ -10,6 +10,10 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 public class FileStorageBackend extends AbstractStorageBackend {
@@ -20,9 +24,12 @@ public class FileStorageBackend extends AbstractStorageBackend {
 
     @Override
     public void save(@NonNull final SequencedEventsCollection sequencedEvents) throws EventStoreError {
-        final String id = sequencedEvents.first().getSource().toString();
-
-        // TODO check if the file exists; if so, perform the version validation
+        final Path path = toPath(sequencedEvents.first().getSource());
+        
+        if (path.toFile().exists()) {
+            final StoreEntry se = readEntry(path);
+            // TODO verify optimistic locking
+        }
 
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(id + ".json", true))) {
             final StoreEntry entry = new StoreEntry(sequencedEvents.first().getSource(), sequencedEvents.first().getSequenceNumber(), sequencedEvents.toArray());
@@ -34,11 +41,18 @@ public class FileStorageBackend extends AbstractStorageBackend {
 
     @Override
     public SequencedEvent[] load(@NonNull final UUID id) throws EventStoreError {
-        try(final BufferedReader reader = new BufferedReader(new FileReader(id.toString() + ".json"))) {
-            final StoreEntry se = serializationStrategy.deserialize(reader, StoreEntry.class);
-            return se.getEvents();
+        return readEntry(toPath(id)).getEvents();
+    }
+
+    private StoreEntry readEntry(final Path path) throws EventStoreError {
+        try(final BufferedReader reader = new BufferedReader(new FileReader(path.toFile(), StandardCharsets.UTF_8))) {
+            return serializationStrategy.deserialize(reader, StoreEntry.class);
         } catch (IOException e) {
             throw new EventStoreError("Could not write to file", e);
         }
+    }
+
+    private static Path toPath(final UUID entryId) {
+        return Paths.get(entryId.toString() + ".json");
     }
 }

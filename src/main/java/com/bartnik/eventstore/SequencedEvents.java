@@ -15,7 +15,7 @@ import java.util.function.Function;
  * Its main responsibility is to load and replay events in order to rebuild the
  * current state of the entity.
  */
-public class SequencedEvents<T extends State> implements SequencedEventsCollection {
+public class SequencedEvents implements SequencedEventsCollection {
 
     public interface SequencedEventProducer<R extends SequencedEvent> extends Function<Long, R> {
         R apply(Long sequenceNumber);
@@ -72,7 +72,7 @@ public class SequencedEvents<T extends State> implements SequencedEventsCollecti
         return se;
     }
 
-    public void pushEvent(final SequencedEventProducer eventProducer) throws EventStoreError {
+    public void pushEvent(final SequencedEventProducer<?> eventProducer) throws EventStoreError {
         final long lastSequenceNumber = isEmpty() ? -1 : last().getSequenceNumber();
         final SequencedEvent event = eventProducer.apply(lastSequenceNumber + 1);
 
