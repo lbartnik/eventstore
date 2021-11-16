@@ -9,3 +9,4 @@
 
 rootProject.name = 'eventstore'
 include('lib')
+include('samples')

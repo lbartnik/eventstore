@@ -1,23 +1,13 @@
-// https://docs.gradle.org/current/samples/sample_building_java_libraries.html
-
 plugins {
-    id 'java-library'
-}
-
-group = 'com.bartnik'
-version = '1.0'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
-    }
+    id 'application' 
 }
 
 repositories {
-    mavenCentral()
+    mavenCentral() 
 }
 
 dependencies {
+    implementation project(':lib') 
     implementation group: 'org.springframework.boot', name: 'spring-boot-autoconfigure', version: '2.5.6'
     
     compileOnly 'org.projectlombok:lombok:1.18.22'
@@ -26,9 +16,13 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok:1.18.22'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2' 
+}
+
+application {
+    mainClass = 'com.bartnik.eventstore.samples.Application'
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform() 
 }
