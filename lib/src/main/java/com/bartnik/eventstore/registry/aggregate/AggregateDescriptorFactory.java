@@ -20,9 +20,9 @@ public class AggregateDescriptorFactory {
 
         // TODO support for tag in the handler annotation to enable various choices of methods in different executors
 
-        final List<AggregateDescriptor.EventHandlerDescriptor> eventHandlers = Stream.of(aggregateClass.getMethods())
+        final List<EventHandlerDescriptor> eventHandlers = Stream.of(aggregateClass.getMethods())
             .filter(this::isEventHandler)
-            .map(this::toEventHandlerDescriptor)
+            .map(method -> toEventHandlerDescriptor(aggregateClass, method))
             .collect(Collectors.toList());
 
         return new AggregateDescriptor(aggregateClass, eventHandlers);
@@ -43,11 +43,11 @@ public class AggregateDescriptorFactory {
         return true;
     }
 
-    private AggregateDescriptor.EventHandlerDescriptor toEventHandlerDescriptor(final Method method) {
+    private EventHandlerDescriptor toEventHandlerDescriptor(final Class<?> aggregateClass, final Method method) {
         final Class<?> argumentClass = method.getParameterTypes()[0];
         final Class<? extends Event> eventClass = argumentClass.asSubclass(eventInterface);
         
-        return new AggregateDescriptor.EventHandlerDescriptor(eventClass, method);
+        return new EventHandlerDescriptor(aggregateClass, method, eventClass);
     }
 
 }
