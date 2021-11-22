@@ -1,7 +1,7 @@
 package com.bartnik.eventstore.execution.agent;
 
+import com.bartnik.eventstore.communication.EventListener;
 import com.bartnik.eventstore.execution.agent.events.EventHandler;
-import com.bartnik.eventstore.execution.communication.EventListener;
 import com.bartnik.eventstore.model.Event;
 
 import lombok.AllArgsConstructor;

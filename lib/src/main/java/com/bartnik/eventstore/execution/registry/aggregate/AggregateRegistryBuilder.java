@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.registry.aggregate;
+package com.bartnik.eventstore.execution.registry.aggregate;
 
 import java.util.HashSet;
 import java.util.List;

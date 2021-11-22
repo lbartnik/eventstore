@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.registry.aggregate;
+package com.bartnik.eventstore.execution.registry.aggregate;
 
 import java.lang.reflect.Method;
 import java.util.List;

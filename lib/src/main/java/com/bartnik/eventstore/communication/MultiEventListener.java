@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.execution.communication;
+package com.bartnik.eventstore.communication;
 
 import java.util.Arrays;
 import java.util.List;

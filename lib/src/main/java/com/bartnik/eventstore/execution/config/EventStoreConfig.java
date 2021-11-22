@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.config;
+package com.bartnik.eventstore.execution.config;
 
 import com.bartnik.eventstore.execution.agent.EventStoreAgentFactory;
 

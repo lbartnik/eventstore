@@ -1,11 +1,11 @@
-package com.bartnik.eventstore.execution.communication.aws;
+package com.bartnik.eventstore.communication.aws;
 
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
 
-import com.bartnik.eventstore.execution.communication.EventListener;
-import com.bartnik.eventstore.execution.communication.EventListenerFactory;
-import com.bartnik.eventstore.registry.aggregate.EventHandlerDescriptor;
+import com.bartnik.eventstore.communication.EventListener;
+import com.bartnik.eventstore.communication.EventListenerFactory;
+import com.bartnik.eventstore.execution.registry.aggregate.EventHandlerDescriptor;
 
 import lombok.NonNull;
 

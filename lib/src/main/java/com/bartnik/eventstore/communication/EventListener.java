@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.execution.communication;
+package com.bartnik.eventstore.communication;
 
 import com.bartnik.eventstore.model.Event;
 

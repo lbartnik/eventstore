@@ -1,6 +1,6 @@
-package com.bartnik.eventstore.execution.communication.aws;
+package com.bartnik.eventstore.communication.aws;
 
-import com.bartnik.eventstore.execution.communication.EventListener;
+import com.bartnik.eventstore.communication.EventListener;
 import com.bartnik.eventstore.model.Event;
 
 import lombok.AllArgsConstructor;

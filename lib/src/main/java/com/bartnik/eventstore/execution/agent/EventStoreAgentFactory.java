@@ -3,12 +3,12 @@ package com.bartnik.eventstore.execution.agent;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.bartnik.eventstore.communication.EventListener;
+import com.bartnik.eventstore.communication.EventListenerFactory;
+import com.bartnik.eventstore.communication.MultiEventListener;
 import com.bartnik.eventstore.execution.agent.events.AutoEventHandler;
-import com.bartnik.eventstore.execution.communication.EventListener;
-import com.bartnik.eventstore.execution.communication.EventListenerFactory;
-import com.bartnik.eventstore.execution.communication.MultiEventListener;
-import com.bartnik.eventstore.registry.aggregate.AggregateDescriptor;
-import com.bartnik.eventstore.registry.aggregate.AggregateRegistry;
+import com.bartnik.eventstore.execution.registry.aggregate.AggregateDescriptor;
+import com.bartnik.eventstore.execution.registry.aggregate.AggregateRegistry;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
