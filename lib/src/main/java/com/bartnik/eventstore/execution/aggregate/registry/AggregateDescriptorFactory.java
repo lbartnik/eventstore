@@ -6,6 +6,8 @@ import lombok.NonNull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,10 +22,10 @@ public class AggregateDescriptorFactory {
 
         // TODO support for tag in the handler annotation to enable various choices of methods in different executors
 
-        final List<EventHandlerDescriptor> eventHandlers = Stream.of(aggregateClass.getMethods())
+        final Map<Class<?>, EventHandlerDescriptor> eventHandlers = Stream.of(aggregateClass.getMethods())
             .filter(this::isEventHandler)
             .map(method -> toEventHandlerDescriptor(aggregateClass, method))
-            .collect(Collectors.toList());
+            .collect(Collectors.toMap(EventHandlerDescriptor::getEventClass, Function.identity()));
 
         final List<AggregateConstructorDescriptor> constructors = Stream.of(aggregateClass.getConstructors())
                 .map(constructor -> toAggregateConstructorDescriptor(aggregateClass, constructor))

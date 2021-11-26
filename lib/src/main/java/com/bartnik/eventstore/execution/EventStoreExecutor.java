@@ -1,9 +1,10 @@
 package com.bartnik.eventstore.execution;
 
-import java.util.List;
-
+import com.bartnik.eventstore.execution.agent.ExecutionAgent;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+
+import java.util.List;
 
 @AllArgsConstructor
 public class EventStoreExecutor {

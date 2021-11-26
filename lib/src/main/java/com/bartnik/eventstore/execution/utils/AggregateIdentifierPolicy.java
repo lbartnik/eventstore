@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.execution.agent;
+package com.bartnik.eventstore.execution.utils;
 
 import com.bartnik.eventstore.model.Event;
 

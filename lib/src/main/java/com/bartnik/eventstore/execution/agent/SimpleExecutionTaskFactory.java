@@ -2,6 +2,7 @@ package com.bartnik.eventstore.execution.agent;
 
 import com.bartnik.eventstore.communication.EventPublisher;
 import com.bartnik.eventstore.execution.aggregate.AggregateRepository;
+import com.bartnik.eventstore.execution.utils.AggregateIdentifierPolicy;
 import com.bartnik.eventstore.model.Event;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
