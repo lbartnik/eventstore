@@ -1,5 +1,5 @@
 package com.bartnik.eventstore.model;
 
-public interface SequenceElement {
+public interface SilentEvent extends Event {
     
 }

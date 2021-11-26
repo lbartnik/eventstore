@@ -1,13 +1,13 @@
-package com.bartnik.eventstore.execution.registry.aggregate;
+package com.bartnik.eventstore.execution.aggregate.registry;
 
+import com.bartnik.eventstore.model.Event;
+import lombok.NonNull;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.bartnik.eventstore.model.Event;
-
-import lombok.NonNull;
 
 public class AggregateDescriptorFactory {
     
@@ -25,7 +25,11 @@ public class AggregateDescriptorFactory {
             .map(method -> toEventHandlerDescriptor(aggregateClass, method))
             .collect(Collectors.toList());
 
-        return new AggregateDescriptor(aggregateClass, eventHandlers);
+        final List<AggregateConstructorDescriptor> constructors = Stream.of(aggregateClass.getConstructors())
+                .map(constructor -> toAggregateConstructorDescriptor(aggregateClass, constructor))
+                .collect(Collectors.toList());
+
+        return new AggregateDescriptor(aggregateClass, constructors, eventHandlers);
     }
 
     private boolean isEventHandler(final Method method) {
@@ -50,4 +54,7 @@ public class AggregateDescriptorFactory {
         return new EventHandlerDescriptor(aggregateClass, method, eventClass);
     }
 
+    private AggregateConstructorDescriptor toAggregateConstructorDescriptor(final Class<?> aggregateClass, final Constructor<?> constructor) {
+        return new AggregateConstructorDescriptor(aggregateClass, constructor);
+    }
 }

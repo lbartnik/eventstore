@@ -1,6 +1,6 @@
 package com.bartnik.eventstore.communication;
 
-import com.bartnik.eventstore.execution.registry.aggregate.EventHandlerDescriptor;
+import com.bartnik.eventstore.execution.aggregate.registry.EventHandlerDescriptor;
 
 public interface EventListenerFactory {
     

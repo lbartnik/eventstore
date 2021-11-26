@@ -1,8 +1,8 @@
 package com.bartnik.eventstore.samples;
 
-import com.bartnik.eventstore.config.EventStoreConfig;
-import com.bartnik.eventstore.registry.aggregate.AggregateRegistry;
-import com.bartnik.eventstore.registry.aggregate.AggregateRegistryBuilder;
+import com.bartnik.eventstore.execution.config.EventStoreConfig;
+import com.bartnik.eventstore.execution.aggregate.registry.AggregateRegistry;
+import com.bartnik.eventstore.execution.aggregate.registry.AggregateRegistryBuilder;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

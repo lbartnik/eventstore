@@ -5,7 +5,7 @@ import java.util.zip.Checksum;
 
 import com.bartnik.eventstore.communication.EventListener;
 import com.bartnik.eventstore.communication.EventListenerFactory;
-import com.bartnik.eventstore.execution.registry.aggregate.EventHandlerDescriptor;
+import com.bartnik.eventstore.execution.aggregate.registry.EventHandlerDescriptor;
 
 import lombok.NonNull;
 

@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.execution.agent;
+package com.bartnik.eventstore.execution;
 
 import java.util.List;
 
@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 @AllArgsConstructor
-public class EventStoreAgent {
+public class EventStoreExecutor {
 
-    @NonNull private final List<EventHandlerAgent> agents;
+    @NonNull private final List<ExecutionAgent> agents;
 
     public void run() {
         // TODO

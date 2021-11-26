@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.execution.agent;
+package com.bartnik.eventstore.execution;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -6,19 +6,18 @@ import java.util.stream.Collectors;
 import com.bartnik.eventstore.communication.EventListener;
 import com.bartnik.eventstore.communication.EventListenerFactory;
 import com.bartnik.eventstore.communication.MultiEventListener;
-import com.bartnik.eventstore.execution.agent.events.AutoEventHandler;
-import com.bartnik.eventstore.execution.registry.aggregate.AggregateDescriptor;
-import com.bartnik.eventstore.execution.registry.aggregate.AggregateRegistry;
+import com.bartnik.eventstore.execution.aggregate.registry.AggregateDescriptor;
+import com.bartnik.eventstore.execution.aggregate.registry.AggregateRegistry;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 @AllArgsConstructor
-public class EventStoreAgentFactory {
+public class EventStoreExecutorFactory {
     
     @NonNull private final EventListenerFactory eventListenerFactory;
 
-    public EventStoreAgent fromAggregateRegistry(@NonNull final AggregateRegistry registry) {
+    public EventStoreExecutor fromAggregateRegistry(@NonNull final AggregateRegistry registry) {
 
         // TODO
         //  1. for each aggregate descriptor, instantiate:
@@ -31,16 +30,16 @@ public class EventStoreAgentFactory {
         // what about thread pools for those executors to handle events in parallel?
         // how to differentiate between Lambda and ECS/EC2-type execution (triggered by event vs. polling) ?
 
-        final List<EventHandlerAgent> agents = registry.getAggregates().stream()
+        final List<ExecutionAgent> agents = registry.getAggregates().stream()
             .map(this::toEventHandlerAgent)
             .collect(Collectors.toList());
 
-        return new EventStoreAgent(agents);
+        return new EventStoreExecutor(agents);
     }
 
-    protected EventHandlerAgent toEventHandlerAgent(final AggregateDescriptor descriptor) {
+    protected ExecutionAgent toEventHandlerAgent(final AggregateDescriptor descriptor) {
         final EventListener listener = createEventListener(descriptor);
-        return new EventHandlerAgent(listener, new AutoEventHandler());
+        return new ExecutionAgent(listener, new AutoEventHandler());
     }
 
     protected EventListener createEventListener(final AggregateDescriptor descriptor) {
