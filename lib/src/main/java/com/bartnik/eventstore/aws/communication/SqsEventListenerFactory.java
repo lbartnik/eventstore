@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.communication.aws;
+package com.bartnik.eventstore.aws.communication;
 
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;

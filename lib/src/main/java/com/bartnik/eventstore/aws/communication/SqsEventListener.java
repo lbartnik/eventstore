@@ -1,4 +1,4 @@
-package com.bartnik.eventstore.communication.aws;
+package com.bartnik.eventstore.aws.communication;
 
 import com.bartnik.eventstore.communication.EventListener;
 import com.bartnik.eventstore.model.Event;

@@ -1,6 +1,6 @@
 package com.bartnik.eventstore.execution.config;
 
-import com.bartnik.eventstore.execution.EventStoreExecutorFactory;
+import com.bartnik.eventstore.execution.EventStoreExecutorBuilder;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class EventStoreConfig {
     
     @Bean
-    public EventStoreExecutorFactory eventStoreAgentFactory() {
+    public EventStoreExecutorBuilder eventStoreAgentFactory() {
         return null;
     }
 }
