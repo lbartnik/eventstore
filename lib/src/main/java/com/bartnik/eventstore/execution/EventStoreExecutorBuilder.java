@@ -1,8 +1,6 @@
 package com.bartnik.eventstore.execution;
 
 import com.bartnik.eventstore.EventStoreException;
-import com.bartnik.eventstore.aws.communication.AwsCommunicationChannelFactory;
-import com.bartnik.eventstore.aws.persistence.AwsEventRepositoryFactory;
 import com.bartnik.eventstore.communication.CommunicationChannelFactory;
 import com.bartnik.eventstore.communication.EventListener;
 import com.bartnik.eventstore.communication.MultiEventListener;
@@ -14,19 +12,26 @@ import com.bartnik.eventstore.execution.aggregate.AggregateRepository;
 import com.bartnik.eventstore.execution.aggregate.SimpleAggregateRepository;
 import com.bartnik.eventstore.execution.aggregate.registry.AggregateDescriptor;
 import com.bartnik.eventstore.execution.aggregate.registry.AggregateRegistry;
+import com.bartnik.eventstore.execution.aggregate.registry.AggregateRegistryBuilder;
 import com.bartnik.eventstore.execution.utils.SimpleAggregateIdentifierPolicy;
+import com.bartnik.eventstore.inmemory.communication.InMemoryCommunicationChannelFactory;
+import com.bartnik.eventstore.inmemory.persistence.InMemoryEventRepositoryFactory;
 import com.bartnik.eventstore.persistence.EventRepositoryFactory;
 import lombok.NonNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EventStoreExecutorBuilder {
     
-    private CommunicationChannelFactory communicationChannelFactory = new AwsCommunicationChannelFactory();
-    private EventRepositoryFactory eventRepositoryFactory = new AwsEventRepositoryFactory();
+    private CommunicationChannelFactory communicationChannelFactory = new InMemoryCommunicationChannelFactory();
+    private EventRepositoryFactory eventRepositoryFactory = new InMemoryEventRepositoryFactory();
+    private Optional<AggregateRegistry> aggregateRegistry = Optional.empty();
+    private AggregateRegistryBuilder aggregateRegistryBuilder = AggregateRegistryBuilder.standard();
+
     private int executionAgentPoolSize = ExecutionAgent.DEFAULT_EXECUTION_POOL_SIZE;
-    private AggregateRegistry aggregateRegistry;
+
 
     public static EventStoreExecutorBuilder defaultBuilder() {
         return new EventStoreExecutorBuilder();
@@ -43,7 +48,12 @@ public class EventStoreExecutorBuilder {
     }
 
     public EventStoreExecutorBuilder withAggregateRegistry(@NonNull final AggregateRegistry aggregateRegistry) {
-        this.aggregateRegistry = aggregateRegistry;
+        this.aggregateRegistry = Optional.of(aggregateRegistry);
+        return this;
+    }
+
+    public EventStoreExecutorBuilder withAggregate(@NonNull final Class<?> aggregate) {
+        aggregateRegistryBuilder.withAggregate(aggregate);
         return this;
     }
 
@@ -70,9 +80,11 @@ public class EventStoreExecutorBuilder {
         // what about thread pools for those executors to handle events in parallel?
         // how to differentiate between Lambda and ECS/EC2-type execution (triggered by event vs. polling) ?
 
-        final List<ExecutionAgent> agents = aggregateRegistry.getAggregates().stream()
-            .map(this::toEventHandlerAgent)
-            .collect(Collectors.toList());
+        final List<ExecutionAgent> agents = aggregateRegistry
+                .orElseGet(() -> aggregateRegistryBuilder.build())
+                .getAggregates().stream()
+                .map(this::toEventHandlerAgent)
+                .collect(Collectors.toList());
 
         return new EventStoreExecutor(agents);
     }
@@ -87,7 +99,7 @@ public class EventStoreExecutorBuilder {
 
     protected EventListener createEventListener(final AggregateDescriptor descriptor) {
         final List<EventListener> listeners = descriptor.getEventHandlers().values().stream()
-            .map(handler -> communicationChannelFactory.createEventListener())
+            .map(handler -> communicationChannelFactory.createEventListener(handler.getEventClass()))
             .collect(Collectors.toList());
         return new MultiEventListener(listeners);
     }
